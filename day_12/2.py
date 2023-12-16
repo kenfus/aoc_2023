@@ -8,12 +8,10 @@ from multiprocessing import Pool
 from tqdm import tqdm
 
 
-@cache
 def is_valid(s):
     return not ("@#" in s or "#@" in s)
 
 
-@cache
 def place_substring(s, length):
     pos = []
     for i in range(len(s) - length + 1):
@@ -33,7 +31,6 @@ def place_substring(s, length):
     return tuple(pos)
 
 
-@cache
 def get_all_pos(s, lengths, total_l):
     if s.count("#") == 0 and s.count("@") == total_l:
         return 1
