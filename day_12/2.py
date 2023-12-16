@@ -33,10 +33,9 @@ def place_substring(s, length):
 
 def get_all_pos(s, lengths, total_l):
     if s.count("#") == 0 and s.count("@") == total_l:
+        print(f"{s=}")
         return 1
     if len(lengths) == 0:
-        return 0
-    if s.count("#") > sum(lengths):
         return 0
     else:
         lengths_copy = lengths
@@ -51,6 +50,16 @@ def get_all_pos(s, lengths, total_l):
                 continue
             elif pos.count("#") > sum(lengths_copy):
                 continue
+            elif (
+                pos.count("#") == 0
+                and pos.count("@") == total_l
+                and len(lengths_copy) == 0
+            ):
+                total += 1
+            elif len(lengths_copy) == 0:
+                continue
+            elif not can_fit_remaining(pos, lengths_copy):
+                continue
             else:
                 total += get_all_pos(pos, lengths_copy, total_l)
         return total
@@ -58,6 +67,17 @@ def get_all_pos(s, lengths, total_l):
 
 def process_example(example):
     return get_all_pos(example[0], tuple(example[1]), sum(example[1]))
+
+
+def can_fit_remaining(s, lengths):
+    s = s.replace("?", "#")
+    for l in lengths:
+        pos = s.find("#" * l)
+        after = s[pos + l :]
+
+        if after.count("#") < sum(lengths) - l:
+            return False
+    return True
 
 
 def main():
@@ -69,11 +89,10 @@ def main():
         example[1] = [int(x) for x in example[1].split(",")]
         examples.append(example)
 
-    # Assuming 'examples' is a list of tuples
-    # results = [process_example(example) for example in tqdm(examples)]
-
     with Pool(os.cpu_count()) as pool:
-        results = list(tqdm(pool.imap(process_example, examples), total=len(examples)))
+        results = list(
+            tqdm(pool.imap_unordered(process_example, examples), total=len(examples))
+        )
 
     total = sum(results)
 
@@ -84,6 +103,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    """    import cProfile
-
-    cProfile.run("main()", "profile_output")"""
